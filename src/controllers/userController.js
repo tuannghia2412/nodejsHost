@@ -161,7 +161,8 @@ const Apiregister = async (req, res) => {
 
         let userData = await user.registerUser(data);
         if (userData.errcode == 0) {
-            const url = `${process.env.REACT_APP_API_URL}/#create-account-ok/${userData.id_users}`;
+            const url = `https://thuesachonline.netlify.app/#create-account-ok/${userData.id_users}`;
+            console.log(url)
             await sendConfirmationEmail(data.email, url);
             return res.status(200).json({
                 status: 200,
