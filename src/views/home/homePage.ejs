@@ -1,0 +1,42 @@
+<%- include('../page/header')%>
+    <%- include('../page/aside')%>
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <h1>
+                    DashBoard
+                </h1>
+            </section>
+            <!-- Main content -->
+            <section class="content">
+                <!-- Default box -->
+                <div class="box">
+                    <div class="box-body">
+                        Start creating your amazing application!
+                    </div>
+                    <!-- /.box-body -->
+                    <!-- /.box-footer-->
+                </div>
+                <!-- /.box -->
+            </section>
+            <!-- /.content -->
+        </div>
+        <%- include('../page/footer')%>
+            <% let arrayMsgLogin=[] %>
+                <% msgLogin.forEach(function(msg){ %>
+                    <% arrayMsgLogin.push(msg) %>
+                        <% })%>
+                            <script>
+                                $(document).ready(function () {
+                                    let toasName = '<%= arrayMsgLogin%>';
+                                    if (toasName != '') {
+                                        toastr.success(toasName, { timeOut: 5000 })
+                                    }
+                                })
+                            </script>
+
+                            <!-- /.content-wrapper -->
+                            </body>
+
+                            </html>

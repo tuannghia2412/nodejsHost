@@ -1,0 +1,161 @@
+<%- include('../page/header')%>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $(".btnDelete").click(function () {
+                const id = $(this).attr('data-id');
+                if (confirm(`Bạn có muốn xóa thể loại có id= ${id}`)) {
+                    return true
+
+                } else {
+                    return false
+                }
+            })
+        })
+    </script>
+    <%- include('../page/aside')%>
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <h1>
+                    Thông tin cá nhân
+                </h1>
+
+            </section>
+            <!-- Main content -->
+            <section class="content">
+                <!-- Default box -->
+                <div class="row">
+                    <div class="col-6">
+                        <div class="card card-primary card-outline">
+                            <div class="card-body box-profile">
+                                <div class="text-center">
+                                    <img class="img-user img-fluid img-circle"
+                                        src="/img/<%= data.hinh ? data.hinh : '/image/avatar.png' %> "
+                                        alt="User profile picture">
+                                </div>
+
+                                <h3 class="profile-username text-center">
+                                    <%= data.ten %>
+                                </h3>
+                                <ul class="list-group list-group-unbordered mb-3">
+                                    <li class="list-group-item">
+                                        <b>Tên: </b> <a class="float-right">
+                                            <%=data.ten%>
+                                        </a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <b>email: </b> <a class="float-right">
+                                            <%= data.email %>
+                                        </a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <b>Loại: </b> <a class="float-right">
+                                            <%=data.loai===0 ? "Admin" :"User" %>
+                                        </a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <b>Cấm bình luận: </b> <a class="float-right">
+                                            <%=data.cambl===0 ? "Không cấm" :"Bị Cấm" %>
+                                        </a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <b>Cấm đăng sách: </b> <a class="float-right">
+                                            <%=data.camdang===0 ? "Không cấm" :"Bị Cấm" %>
+                                        </a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <b>Cấm thuê sách: </b> <a class="float-right">
+                                            <%=data.camthue===0 ? "Không cấm" :"Bị Cấm" %>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <div>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <form action="/DisableBookPosting" method="POST">
+                                            <input name="id" value="<%= data.id%>" class="d-none" />
+                                            <% if(data.camdang===0) { %>
+                                                <input type=" hidden" name="camdang" value="1" class="d-none" />
+                                                <button class="btn btn-danger">Cấm
+                                                    đăng sách</button>
+                                                <% } else { %>
+                                                    <input type="hidden" name="camdang" value="0" class="d-none" />
+                                                    <button class="btn btn-success">Bỏ cấm
+                                                        đăng sách</button>
+                                                    <% } %>
+                                        </form>
+                                        <form action="disableCommentsUsers" method="post">
+                                            <input name="id" value="<%= data.id%>" class="d-none" />
+                                            <% if(data.cambl===0) { %>
+
+                                                <input type=" hidden" name="cambl" value="1" class="d-none" />
+                                                <button class="btn btn-danger">Cấm
+                                                    bình
+                                                    luận</button>
+                                                <% } else { %>
+                                                    <input type="hidden" name="cambl" value="0" class="d-none" />
+                                                    <button class="btn btn-success">Bỏ
+                                                        Cấm
+                                                        bình luận</button>
+                                                    <% } %>
+                                        </form>
+                                        <form action="rentalBan" method="post">
+                                            <input name="id" value="<%= data.id%>" class="d-none" />
+                                            <% if(data.camthue===0) { %>
+
+                                                <input type=" hidden" name="camthue" value="1" class="d-none" />
+                                                <button class="btn btn-danger">Cấm thuê sách</button>
+                                                <% } else { %>
+                                                    <input type="hidden" name="camthue" value="0" class="d-none" />
+                                                    <button class="btn btn-success">Bỏ
+                                                        Cấm thuê sách</button>
+                                                    <% } %>
+                                        </form>
+                                        <a name="" id="" class="btn btn-default float-right" href="/user"><i
+                                                class="fa fa-arrow-left" aria-hidden="true"></i>
+                                            Quay
+                                            Lại</a>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                    </div>
+
+                    <!-- /.box-body -->
+
+                    <!-- /.box-footer-->
+                </div>
+                <!-- /.box -->
+            </section>
+            <!-- /.content -->
+        </div>
+        <% let arrMsg=[] %>
+            <% msgUsers.forEach(function(msg){ %>
+                <% arrMsg.push(msg) %>
+                    <% })%>
+                        <% let arrErr=[] %>
+                            <% errUsers.forEach(function(err){ %>
+                                <% arrErr.push(err) %>
+                                    <% })%>
+                                        <%- include('../page/footer')%>
+                                            <!-- /.content-wrapper -->
+                                            <script>
+                                                $(document).ready(function () {
+                                                    let msg = '<%= arrMsg%>';
+                                                    let err = '<%= arrErr%>';
+                                                    if (msg != '') {
+                                                        toastr.success(msg, { timeOut: 5000 })
+                                                    }
+                                                    if (err != '') {
+                                                        toastr.error(err, { timeOut: 5000 })
+                                                    }
+                                                })
+
+
+                                            </script>
+                                            </body>
+
+                                            </html>

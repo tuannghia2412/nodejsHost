@@ -1,0 +1,384 @@
+<%- include('../page/header')%>
+
+
+    <%- include('../page/aside')%>
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <h1>
+                    Danh sách sách chưa duyệt
+                </h1>
+            </section>
+            <!-- Main content -->
+            <section class="content">
+                <!-- Default box -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <form class="form-inline">
+                                    <div class="form-group">
+                                        <input type="text" name="name" id="name" class="form-control" placeholder=""
+                                            aria-describedby="helpId">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary" onclick="searchAndFetchData()"><i
+                                            class="fa fa-search" aria-hidden="true"></i></button>
+                                </form>
+                                <hr>
+                                <!-- Ví dụ cách hiển thị danh sách sách trong EJS -->
+                                <table class="table table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-truncate">STT</th>
+                                            <th class="text-truncate">Hình</th>
+                                            <th class="text-truncate">Tên</th>
+                                            <th class="text-truncate">Loại</th>
+                                            <th class="text-truncate">Tình Trạng</th>
+                                            <th class="text-truncate">Thể Loại </th>
+                                            <th class="text-truncate">Người Đăng</th>
+                                            <th class="text-truncate">Tác Giả</th>
+                                            <th class="text-truncate">Trạng Thái</th>
+                                            <th class="text-truncate text-right">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dataList">
+                                        <!-- Dữ liệu sách sẽ được thêm vào đây bằng JavaScript -->
+                                    </tbody>
+                                </table>
+                                <hr>
+                                <div>
+                                    <nav aria-label="Page navigation">
+                                        <ul class="pagination page-item" id="pagination">
+
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <%- include('../page/footer')%>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const socket = io();
+                    socket.on('updateData', function (data) {
+                        console.log('Nhận sự kiện updateData:', data);
+                        fetchData();
+                    });
+
+                    $('#pagination').on('click', 'a.page-link', function (e) {
+                        e.preventDefault();
+                        const page = parseInt($(this).attr('data-page'));
+                        console.log(page)
+                        fetchData(page);
+                    });
+
+                    $('.form-inline').submit(function (e) {
+                        e.preventDefault();
+                        fetchData();
+                    });
+
+                    $('#pagination').on('click', '#prevPage', function (e) {
+                        e.preventDefault();
+                        let currentPage = parseInt($('#pagination').find('li.active a.page-link').attr('data-page'));
+                        let prevPage = currentPage - 1;
+                        if (prevPage >= 1) {
+                            console.log('ket qua ', prevPage)
+                            fetchData(prevPage);
+                        } else {
+                            prevPage = 1
+                            fetchData(prevPage);
+                        }
+                    });
+
+
+                    $('#pagination').on('click', '#nextPage', function (e) {
+                        e.preventDefault();
+                        const currentPage = parseInt($('#pagination').find('li.active a.page-link').attr('data-page'));
+                        const lastPage = parseInt($('#pagination').find('li').last().prev().find('a.page-link').attr('data-page'));
+                        const nextPage = currentPage + 1;
+                        if (nextPage <= parseInt($('#pagination').find('li').last().prev().find('a.page-link').attr('data-page'))) {
+                            fetchData(nextPage);
+                        } else {
+                            fetchData(lastPage);
+                        }
+                    });
+
+
+                    fetchData();
+                });
+
+
+                function searchAndFetchData(page = 1) {
+                    fetchData(page);
+                }
+
+                function fetchData(page = 1) {
+                    const trangthaiduyet = $("#trangthaiduyet").val();
+                    const name = $("#name").val();
+                    $.ajax({
+                        url: '/book',
+                        method: 'GET',
+                        data: {
+                            name: name,
+                            trangthaiduyet: trangthaiduyet,
+                            page: page,
+                        },
+                        dataType: "JSON",
+                        success: function (data) {
+                            console.log('Dữ liệu trả về:', data.data);
+                            const dataList = $('#dataList');
+                            const pagination = $('.pagination');
+                            if (data.data) {
+                                dataList.html('');
+                                data.data.forEach(function (sach, index) {
+                                    dataList.append(`
+                                  <tr>
+                            <td scope="row">
+                                ${index + 1}
+                            </td>
+                            <td scope="row">
+                                <div class="avatar avatar-sm me-3">
+                                    <img src="/img/${sach.hinh}" class="img-list" />
+                                </div>
+                            </td>
+                            <td scope="row">
+                                ${sach.ten}
+                            </td>
+                            <td scope="row">
+                                ${sach.loai === 0 ? "Thuê" : "Đọc online"}
+                            </td>
+                            <td scope="row">
+                                ${sach.tinhtrang === 0 ? "Sách mới" : "Sách Cũ"}
+                            </td>
+                            <td scope="row">
+                                ${sach.theloai}
+                            </td>
+                            <td scope="row">
+                                ${sach.nguoidang}
+                            </td>
+                            <td scope="row">
+                                ${sach.tentacgia}
+                            </td>
+                              <td scope="row">
+                                ${sach.trangthai === 0 ? "Ẩn" : "Hiện"}
+                            </td>
+                            <td class="text-right">
+                                <a class="btn btn-sm btn-success" data-id="${sach.id}"
+                                    href="/get-detailbook?id=${sach.id}">Duyệt</a>
+                            </td>
+                        </tr>
+                            `);
+
+                                    pagination.html('');
+                                    let paginationHTML = '';
+                                    paginationHTML += ` <li class="page-item" id="prevPage">
+        <a class="page-link" href="#" data-page="${page - 1}">Trước</a>
+    </li>`
+                                    for (let i = 1; i <= data.totalPage; i++) {
+                                        if (i === page) {
+                                            paginationHTML += `
+            <li class="page-item active">
+                <a class="page-link" href="#" data-page="${i}">${i}</a>
+            </li>
+        `;
+                                        } else if (i === 1 || i === data.totalPage || (i >= page - 2 && i <= page + 2)) {
+                                            paginationHTML += `
+            <li class="page-item">
+                <a class="page-link" href="#" data-page="${i}">${i}</a>
+            </li>
+        `;
+                                        } else if ((i === page - 3 && i > 1) || (i === page + 3 && i < data.totalPage)) {
+                                            paginationHTML += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                                        }
+                                    }
+                                    paginationHTML += `
+   
+    <li class="page-item" id="nextPage">
+        <a class="page-link" href="#" data-page="${page + 1}">Sau</a>
+    </li>
+`;
+                                    pagination.append(paginationHTML);
+                                });
+                            } else {
+                                dataList.html('');
+                                dataList.append('<div>không có dữ liệu</div>')
+                            }
+
+                        },
+                        error: function (error) {
+                            console.error('Lỗi:', error);
+                        }
+                    });
+                }
+            </script>
+            </body>
+
+            </html>
+
+
+
+            rental.getRentOrder = (data) => {
+            return new Promise(async (resolve, reject) => {
+            try {
+            let dataRental = {};
+            let sqlRental = 'SELECT phieuthue.id, GROUP_CONCAT(sach.id) AS sach_ids, GROUP_CONCAT(sach.hinh) AS hinh,
+            GROUP_CONCAT(sach.ten) AS tensach, GROUP_CONCAT(sach.gia) AS gia, GROUP_CONCAT(sach.tiencoc) AS tiencoc,
+            nguoithue_phieuthue.ten AS nguoithue, ngaythue, ngaynhan, ngaytra, tongtien FROM phieuthue';
+            sqlRental += ' INNER JOIN phieuthue_sach ON phieuthue.id = phieuthue_sach.phieuthue_id';
+            sqlRental += ' INNER JOIN sach ON phieuthue_sach.sach_id = sach.id';
+            sqlRental += ' INNER JOIN users AS nguoithue_phieuthue ON phieuthue.users_id = nguoithue_phieuthue.id';
+            sqlRental += ' INNER JOIN users AS chutiem_sach ON sach.id_users = chutiem_sach.id';
+            sqlRental += ' WHERE chutiem_id = ? AND phieuthue.trangthai = ? GROUP BY phieuthue_id';
+
+            const [rows, fields] = await pool.execute(sqlRental, [data.chutiem_id, data.trangthai]);
+            let dataRow = rows;
+
+            if (dataRow.length > 0) {
+            // Chuyển đổi các thông tin sách thành mảng các đối tượng
+            const books = dataRow.map(row => ({
+            id: row.id,
+            hinh: row.hinh.split(','),
+            tensach: row.tensach.split(','),
+            gia: row.gia.split(','),
+            tiencoc: row.tiencoc.split(',')
+            }));
+
+            dataRental = {
+            data: books,
+            errcode: 0,
+            message: 'ok'
+            };
+            } else {
+            dataRental = {
+            errcode: 1,
+            message: 'không có data'
+            };
+            }
+
+            resolve(dataRental);
+            } catch (e) {
+            reject(e);
+            }
+            });
+            };
+
+
+
+
+            var chartNewAccount = JSON.parse('<%- JSON.stringify(chartNewAccount) %>');
+                console.log('Series Account:', chartNewAccount.options.xaxis.categories);
+                var optionsNewAccount = {
+                chart: {
+                type: 'line'
+                },
+                series: chartNewAccount.series,
+                xaxis: {
+                categories: chartNewAccount.options.xaxis.categories
+                }
+                };
+                var chartAccount = new ApexCharts(document.querySelector("#chartAccount"), optionsNewAccount);
+                chartAccount.render();
+
+
+                var chartData = JSON.parse('<%- JSON.stringify(chartData) %>');
+                    console.log('Series Data:', chartData.series);
+                    chartData.series.forEach((series, index) => {
+                    console.log(`Name of series ${index + 1}:`, series.name);
+                    });
+
+                    var options = {
+                    chart: {
+                    type: 'line'
+                    },
+                    series: chartData.series,
+                    xaxis: {
+                    categories: chartData.options.xaxis.categories
+                    }
+                    };
+                    var chart = new ApexCharts(document.querySelector("#chart"), options);
+                    chart.render();
+
+                    function fetchChartRevenue(name) {
+                    $.ajax({
+                    url: '/calculateOverallRevenue',
+                    method: 'POST',
+                    data: { name: name },
+                    dataType: "JSON",
+                    success: function (chartData) {
+                    console.log('Dữ liệu từ server:', chartData);
+                    var hasData
+                    if (chartData.message) {
+                    hasData = false
+                    } else {
+                    hasData = true
+                    }
+                    console.log('có dâtta', hasData)
+                    if (!chartRevenue) {
+                    var options = {
+                    chart: {
+                    type: 'line'
+                    },
+                    series: chartData.series,
+                    xaxis: {
+                    categories: chartData.options.xaxis.categories
+                    }
+                    };
+                    chartRevenue = new ApexCharts(document.querySelector("#chart"), options);
+                    chartRevenue.render();
+                    chartHasData = hasNewData;
+                    } else {
+                    chartRevenue.updateOptions({
+                    xaxis: {
+                    categories: chartData.options.xaxis.categories
+                    }
+                    });
+                    chartRevenue.updateSeries(chartData.series);
+
+                    }
+                    },
+                    error: function (error) {
+                    console.error('Lỗi trong quá trình gửi yêu cầu Ajax:', error);
+                    }
+                    });
+                    }
+
+
+
+                    <span class="select2-container select2-container--default select2-container--open"
+                        style="position: absolute; top: 187.75px; left: 285.5px;">
+                        <span class="select2-dropdown select2-danger select2-dropdown--above" dir="ltr"
+                            style="width: 588.4px;"><span class="select2-search select2-search--dropdown"><input
+                                    class="select2-search__field" type="search" tabindex="0" autocomplete="off"
+                                    autocorrect="off" autocapitalize="none" spellcheck="false" role="searchbox"
+                                    aria-autocomplete="list" aria-controls="select2-rs7o-results"
+                                    aria-activedescendant="select2-rs7o-result-8xgb-Texas"></span><span
+                                class="select2-results">
+                                <ul class="select2-results__options" role="listbox" id="select2-rs7o-results"
+                                    aria-expanded="true" aria-hidden="false">
+                                    <li class="select2-results__option" id="select2-rs7o-result-vafa-Alabama"
+                                        role="option" aria-selected="true"
+                                        data-select2-id="select2-rs7o-result-vafa-Alabama">Alabama</li>
+                                    <li class="select2-results__option" id="select2-rs7o-result-l3u7-Alaska"
+                                        role="option" aria-selected="false"
+                                        data-select2-id="select2-rs7o-result-l3u7-Alaska">Alaska</li>
+                                    <li class="select2-results__option" id="select2-rs7o-result-ihfl-California"
+                                        role="option" aria-selected="false"
+                                        data-select2-id="select2-rs7o-result-ihfl-California">California</li>
+                                    <li class="select2-results__option" id="select2-rs7o-result-y26x-Delaware"
+                                        role="option" aria-selected="false"
+                                        data-select2-id="select2-rs7o-result-y26x-Delaware">Delaware</li>
+                                    <li class="select2-results__option" id="select2-rs7o-result-qmbq-Tennessee"
+                                        role="option" aria-selected="false"
+                                        data-select2-id="select2-rs7o-result-qmbq-Tennessee">Tennessee</li>
+                                    <li class="select2-results__option select2-results__option--highlighted"
+                                        id="select2-rs7o-result-8xgb-Texas" role="option" aria-selected="false"
+                                        data-select2-id="select2-rs7o-result-8xgb-Texas">Texas</li>
+                                    <li class="select2-results__option" id="select2-rs7o-result-og0u-Washington"
+                                        role="option" aria-selected="false"
+                                        data-select2-id="select2-rs7o-result-og0u-Washington">Washington</li>
+                                </ul>
+                            </span></span></span>

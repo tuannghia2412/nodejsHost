@@ -1,0 +1,210 @@
+<%- include('../page/header')%>
+    <%- include('../page/aside')%>
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <h1>
+                    <%if(data.trangthai==0){%>
+                        Duyệt sách
+                        <% } else {%>
+                            Chi tiết sách
+                            <% } %>
+                </h1>
+            </section>
+            <!-- Main content -->
+            <section class="content">
+                <!-- Default box -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <form action="/post-browsebook" method="post">
+                                <div class="row g-0">
+                                    <div class="col-md-4">
+                                        <div class="card-body">
+                                            <div>
+                                                <input type="hidden" name="id" value="<%= data.id %>" />
+                                            </div>
+                                            <div>
+                                                <input type="hidden" name="trangthaiduyet" value="duocduyet" />
+                                            </div>
+                                            <div class="form-group">
+                                                <img id="change-image" width="300" height="300"
+                                                    src="/img/<%= data.hinh %>" alt="">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="">Tên sách: </label>
+                                                <span for="">
+                                                    <%= data.ten %>
+                                                </span>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="">Mã sách: </label>
+                                                <span for="">
+                                                    <%= data.masach %>
+                                                </span>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="">Trạng thái: </label>
+                                                <span for="">
+                                                    <%= data.tinhtrang===1 ? "Sách Mới" : "Sách Cũ" %>
+                                                </span>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="">Tình trạng: </label>
+                                                <span for="">
+                                                    <%= data.trangthai===1 ? "Hiện" : "Ẩn" %>
+                                                </span>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="">thể loại: </label>
+                                                <span for="">
+                                                    <%= data.theloai %>
+                                                </span>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="">Tên tác giả: </label>
+                                                <span for="">
+                                                    <%= data.tentacgia %>
+                                                </span>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="">Người đăng: </label>
+                                                <span for="">
+                                                    <%= data.nguoidang %>
+                                                </span>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="">Địa chỉ: </label>
+                                                <span for="">
+                                                    <%= data.diachi %>
+                                                </span>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="">Số điện thoại: </label>
+                                                <span for="">
+                                                    <%= data.sdt %>
+                                                </span>
+                                            </div>
+                                            <%if(data.loai==0) {%>
+                                                <div class="form-group">
+                                                    <label for="">Giá: </label>
+                                                    <span for="">
+                                                        <%= formattedAmount(data.gia) %>
+                                                    </span>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="">Tiền cọc: </label>
+                                                    <span for="">
+                                                        <%= formattedAmount(data.tiencoc) %>
+                                                    </span>
+                                                </div>
+                                                <% } %>
+                                                    <button type="submit" class="btn btn-primary"><i
+                                                            class="fa fa-save"></i>Duyệt</button>
+                                                    <a name="" id="" class="btn btn-default float-right" href="/book"><i
+                                                            class="fa fa-arrow-left" aria-hidden="true"></i> Quay
+                                                        Lại</a>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="card-body">
+                                            <div class="form-group">
+                                                <label for="">Nội dung: </label>
+                                                <div class="overflow-hidden"
+                                                    style="max-height: 200px; overflow: hidden;">
+                                                    <%= data.noidung %>
+                                                </div>
+                                                <button type="button" class="btn btn-link" onclick="toggleContent()">Xem
+                                                    thêm</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="card">
+                            <form action="/post-Message" method="post">
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <div>
+                                            <input type="hidden" name="id" value="<%= data.id %>" />
+                                        </div>
+                                        <div>
+                                            <input type="hidden" name="trangthaiduyet" value="khongduyet" required />
+                                        </div>
+                                        <label for="">
+                                            Lý do không duyệt
+                                        </label>
+                                        <textarea name="noidung" id="summernote" cols="30" rows="10"></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i>Lưu
+                                        lại</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.box-body -->
+                <!-- /.box-footer-->
+
+                <!-- /.box -->
+            </section>
+            <!-- /.content -->
+        </div>
+        <% let arrMsg=[] %>
+            <% msgBook.forEach(function(msg){ %>
+                <% arrMsg.push(msg) %>
+                    <% })%>
+                        <% let arrErr=[] %>
+                            <% errBook.forEach(function(err){ %>
+                                <% arrErr.push(err) %>
+                                    <% })%>
+                                        <%- include('../page/footer')%>
+                                            <script>
+                                                function showImage(input) {
+                                                    if (input.files && input.files[0]) {
+                                                        var reader = new FileReader();
+                                                        reader.onload = function (e) {
+                                                            $('#change-image').attr('src', e.target.result).height(300).width(300)
+                                                        };
+                                                        reader.readAsDataURL(input.files[0])
+                                                    }
+                                                }
+                                            </script>
+                                            <script>
+                                                $(document).ready(function () {
+                                                    let msg = '<%= arrMsg%>';
+                                                    let err = '<%= arrErr%>';
+                                                    if (msg != '') {
+                                                        toastr.success(msg, { timeOut: 5000 })
+                                                    }
+                                                    if (err != '') {
+                                                        toastr.error(err, { timeOut: 5000 })
+                                                    }
+                                                })
+                                            </script>
+                                            <script>
+                                                var isContentVisible = false;
+                                                var buttonTexts = {
+                                                    show: 'Xem thêm',
+                                                    hide: 'Ẩn đi'
+                                                };
+
+                                                function toggleContent() {
+                                                    var content = document.querySelector('.card-body .form-group .overflow-hidden');
+                                                    content.style.maxHeight = isContentVisible ? '200px' : null;  // Đảo ngược giá trị ở đây
+
+                                                    var button = document.querySelector('.btn-link');
+                                                    button.innerText = isContentVisible ? buttonTexts.show : buttonTexts.hide;
+
+                                                    isContentVisible = !isContentVisible;
+                                                }
+                                            </script>
+
+                                            </body>
+
+                                            </html>
+                                            <!-- /.content-wrapper -->

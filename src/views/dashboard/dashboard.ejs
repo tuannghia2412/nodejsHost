@@ -1,0 +1,234 @@
+<%- include('../page/header')%>
+    <style>
+        #chart-container {
+            width: 50%;
+            margin: 0 auto;
+        }
+    </style>
+    <link rel="stylesheet" href="../../plugins/select2/css/select2.min.css">
+
+    <%- include('../page/aside')%>
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <h1>
+                    DashBoard
+                </h1>
+            </section>
+            <br>
+            <!-- Main content -->
+            <section class="content">
+
+                <!-- <div id="chart-container">
+                    <div id="chart"></div>
+                </div> -->
+                <div class="container-fluid">
+                    <div class="row">
+                        <section class="col-lg-6 connectedSortable ui-sortable">
+                            <div class="d-flex align-items-center">
+                                <h5 class="mr-3">Chủ tiệm:</h5>
+                                <select id="selectUser" class="js-example-basic-single" name="state"
+                                    style="width: 30%;">
+                                    <% if (users && users.rows) { %>
+                                        <option value="null">Tất cả</option>
+                                        <% for (const chutiem of users.rows) { %>
+                                            <option value="<%= chutiem?.id %>">
+                                                <%= chutiem?.ten %>
+                                            </option>
+                                            <% } %>
+                                                <%}%>
+                                </select>
+                            </div>
+                            <hr>
+                            <div class="card">
+                                <div class="card-header ui-sortable-handle" style="cursor: move;">
+
+                                    <h3 class="card-title">
+                                        <i class="fas fa-chart-pie mr-1"></i>
+                                        <font _mstmutation="1" _msttexthash="122395" _msthash="146"> Doanh thu </font>
+                                    </h3>
+                                </div>
+                                <div class="card-body">
+                                    <div id="chart"></div>
+                                </div>
+                            </div>
+                        </section>
+                        <section class="col-lg-6 connectedSortable ui-sortable">
+                            <div class="d-flex align-items-center">
+                                <h5 class="mr-3">Năm:</h5>
+                                <select id="selectYear" class="js-example-basic-single" name="state"
+                                    style="width: 30%;">
+                                    <% if (usersYear && usersYear.rows) { %>
+                                        <option value="" selected disabled>Chọn năm</option>
+                                        <% for (const years of usersYear.rows) { %>
+                                            <option value="<%= years?.nam %>">
+                                                <%= years?.nam %>
+                                            </option>
+                                            <% } %>
+                                                <% } %>
+                                </select>
+                            </div>
+                            <hr>
+                            <div class="card">
+
+                                <div class="card-header ui-sortable-handle" style="cursor: move;">
+
+                                    <h3 class="card-title">
+                                        <i class="fas fa-chart-pie mr-1"></i>
+                                        <font _mstmutation="1" _msttexthash="122395" _msthash="146"> Số tài khoản được
+                                            đăng kí trong tháng </font>
+                                    </h3>
+                                </div>
+                                <div class="card-body">
+                                    <div id="chartAccount"></div>
+                                </div>
+                            </div>
+                        </section>
+                        <!-- /.content -->
+                    </div>
+                </div>
+            </section>
+        </div>
+        <%- include('../page/footer')%>
+            <script src="../../plugins/select2/js/select2.full.min.js"></script>
+            <% let arrayMsgLogin=[] %>
+                <% msgLogin.forEach(function(msg){ %>
+                    <% arrayMsgLogin.push(msg) %>
+                        <% })%>
+                            <script>
+                                $(document).ready(function () {
+                                    let toasName = '<%= arrayMsgLogin%>';
+                                    if (toasName != '') {
+                                        toastr.success(toasName, { timeOut: 5000 })
+                                    }
+                                })
+                            </script>
+
+                            <script type="text/javascript">
+
+                                $('.js-example-basic-single').select2({
+                                    theme: "classic"
+                                });
+
+                                document.addEventListener('DOMContentLoaded', function () {
+
+
+
+                                    //thống kê doanh thu
+                                    var chartRevenue;
+
+                                    function fetchChartRevenue(name) {
+                                        $.ajax({
+                                            url: '/calculateOverallRevenue',
+                                            method: 'POST',
+                                            data: { name: name },
+                                            dataType: "JSON",
+                                            success: function (chartData) {
+                                                console.log('Dữ liệu từ server:', chartData);
+
+                                                var hasData = !chartData.message;
+
+                                                console.log('có dâtta', hasData);
+
+                                                if (!chartRevenue) {
+                                                    var options = {
+                                                        chart: {
+                                                            type: 'line'
+                                                        },
+                                                        series: hasData ? chartData.series : [],
+                                                        xaxis: {
+                                                            categories: hasData ? chartData.options.xaxis.categories : []
+                                                        },
+                                                        yaxis: {
+                                                            labels: {
+                                                                formatter: function (value) {
+                                                                    return new Intl.NumberFormat('vi-VN', {
+                                                                        style: 'currency',
+                                                                        currency: 'VND',
+                                                                        minimumFractionDigits: 0,
+                                                                    }).format(value);
+                                                                }
+                                                            }
+                                                        }
+                                                    };
+                                                    chartRevenue = new ApexCharts(document.querySelector("#chart"), options);
+                                                    chartRevenue.render();
+                                                    chartHasData = hasData;
+                                                } else {
+                                                    if (chartData.options) {
+                                                        chartRevenue.updateOptions({
+                                                            xaxis: {
+                                                                categories: chartData.options.xaxis.categories
+                                                            }
+                                                        });
+                                                    }
+
+                                                    chartRevenue.updateSeries(hasData ? chartData.series : []);
+                                                }
+                                            },
+                                            error: function (error) {
+                                                console.error('Lỗi trong quá trình gửi yêu cầu Ajax:', error);
+                                            }
+                                        });
+                                    }
+
+
+                                    $('#selectUser').on('change', function () {
+                                        var selectUser = $(this).val();
+                                        var name = (selectUser === "null") ? null : selectUser;
+                                        fetchChartRevenue(name);
+                                    });
+
+                                    fetchChartRevenue(null)
+                                    console.log('da', fetchChartRevenue)
+                                    //thống kê tài khoản được đăng kí trong tháng
+                                    var chartAccount;
+                                    function fetchChartAccount(selectedYear) {
+                                        $.ajax({
+                                            url: '/newAccountStatistics',
+                                            method: 'POST',
+                                            dataType: "JSON",
+                                            data: { nam: selectedYear },
+                                            success: function (response) {
+                                                if (!chartAccount) {
+                                                    var optionsNewAccount = {
+                                                        chart: {
+                                                            type: 'line'
+                                                        },
+                                                        series: response.series,
+                                                        xaxis: {
+                                                            categories: response.options.xaxis.categories
+                                                        }
+                                                    };
+                                                    chartAccount = new ApexCharts(document.querySelector("#chartAccount"), optionsNewAccount);
+                                                    chartAccount.render();
+                                                } else {
+                                                    chartAccount.updateOptions({
+                                                        xaxis: {
+                                                            categories: response.options.xaxis.categories
+                                                        }
+                                                    });
+                                                    chartAccount.updateSeries(response.series);
+                                                }
+                                            },
+                                            error: function (error) {
+                                                console.error('Lỗi trong quá trình gửi yêu cầu Ajax:', error);
+                                            }
+                                        });
+                                    }
+
+                                    $('#selectYear').on('change', function () {
+                                        var selectedYear = $(this).val();
+                                        fetchChartAccount(selectedYear);
+                                    });
+
+                                    fetchChartAccount(null);
+                                });
+
+
+                            </script>
+                            <!-- /.content-wrapper -->
+                            </body>
+
+                            </html>

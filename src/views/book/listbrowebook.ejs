@@ -1,0 +1,224 @@
+<%- include('../page/header')%>
+    <%- include('../page/aside')%>
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <h1>
+                    Danh sách sách đã duyệt
+                </h1>
+
+            </section>
+            <!-- Main content -->
+            <section class="content">
+                <!-- Default box -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <form class="form-inline">
+                                    <div class="form-group">
+                                        <input value="<%= name %>" type="text" name="name" id="" class="form-control"
+                                            placeholder="Nhập tên sách" aria-describedby="helpId">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary"><i class="fa fa-search"
+                                            aria-hidden="true"></i></button>
+                                </form>
+                                <hr>
+                                <table class="table table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-truncate">STT</th>
+                                            <th class="text-truncate">Hình</th>
+                                            <th class="text-truncate">Tên</th>
+                                            <th class="text-truncate">Loại</th>
+                                            <th class="text-truncate">Tình Trạng</th>
+                                            <th class="text-truncate">Thể Loại </th>
+                                            <th class="text-truncate">Người Đăng</th>
+                                            <th class="text-truncate">Tác Giả</th>
+                                            <th class="text-truncate">Trạng Thái</th>
+                                            <th class="text-truncate">Trạng Thái Duyệt</th>
+                                            <th class="text-truncate text-right">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <%if(errcode==1) {%>
+                                        <tbody>
+                                            <div>
+                                                <td scope="row">
+                                                    <%=message %>
+                                                </td>
+                                            </div>
+                                        </tbody>
+                                        <% }else { %>
+                                            <tbody>
+                                                <% for(let i=0; i < data.length; i++) { %>
+                                                    <tr>
+                                                        <td scope="row">
+                                                            <%= i+1 %>
+                                                        </td>
+                                                        <td scope="row">
+                                                            <div class="avatar avatar-sm me-3">
+                                                                <img src="/img/<%= data[i].hinh %>" class="img-list" />
+                                                            </div>
+                                                        </td>
+                                                        <td scope="row">
+                                                            <%= data[i].ten %>
+                                                        </td>
+                                                        <td scope="row">
+                                                            <%= data[i].loai===0 ? "Thuê" : "Đọc online" %>
+                                                        </td>
+                                                        <td scope="row">
+                                                            <%= data[i].tinhtrang===0 ? "Sách mới" : "Sách Cũ" %>
+                                                        </td>
+                                                        <td scope="row">
+                                                            <%= data[i].theloai %>
+                                                        </td>
+                                                        <td scope="row">
+                                                            <%= data[i].nguoidang %>
+                                                        </td>
+                                                        <td scope="row">
+                                                            <%= data[i].tentacgia %>
+                                                        </td>
+                                                        <td scope="row">
+                                                            <%= data[i].trangthai===0 ? "Ẩn" : "Hiện" %>
+                                                        </td>
+                                                        <td scope="row" class="changeTT" data-id="<%= data[i].id %>">
+                                                            <%= data[i].trangthaiduyet==="duocduyet" ? "Được duyệt"
+                                                                : "Chờ duyệt" %>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <a class="btn btn-sm btn-success d-inline-block align-middle text-nowrap !important"
+                                                                data-id="<%= data[i].id %>"
+                                                                href="/detailBroweBook?id=<%= data[i].id %>">Chi
+                                                                tiết</a>
+                                                        </td>
+                                                    </tr>
+                                                    <% } %>
+                                            </tbody>
+                                            <% } %>
+                                </table>
+                                <hr>
+                                <div>
+                                    <nav aria-label="Page navigation">
+                                        <ul class="pagination">
+                                            <%if(name) {%>
+                                                <li class="page-item">
+                                                    <a class="page-link"
+                                                        href="/get-broweBook?page=<%= page > 1 ? page - 1 : 1%>&name=<%= name%>"
+                                                        aria-label="Previous">
+                                                        <span aria-hidden="true">&laquo;</span>
+                                                        <span class="sr-only">Previous</span>
+                                                    </a>
+                                                </li>
+                                                <%for(let i=1; i<=totalPage; i++){ %>
+                                                    <% if (i===page) { %>
+                                                        <li class="page-item active">
+                                                            <span class="page-link">
+                                                                <%= i %>
+                                                            </span>
+                                                        </li>
+                                                        <% } else if (i===1 || i===totalPage || (i>= page -
+                                                            2 && i <= page + 2)) { %>
+                                                                <li class="page-item">
+                                                                    <a class="page-link"
+                                                                        href="/get-broweBook?page=<%= i %>&name=<%= name%>">
+                                                                        <%= i %>
+                                                                    </a>
+                                                                </li>
+                                                                <% } else if (i===page - 3 || i===page + 3) { %>
+                                                                    <li class="page-item disabled">
+                                                                        <span class="page-link">...</span>
+                                                                    </li>
+                                                                    <% } %>
+                                                                        <%} %>
+                                                                            <li class="page-item">
+                                                                                <a class="page-link"
+                                                                                    href="/get-broweBook?page=<%= page < totalPage ? page + 1 : totalPage%>&name=<%= name%>"
+                                                                                    aria-label="Next">
+                                                                                    <span
+                                                                                        aria-hidden="true">&raquo;</span>
+                                                                                    <span class="sr-only">Next</span>
+                                                                                </a>
+                                                                            </li>
+                                                                            <%}else {%>
+                                                                                <li class="page-item">
+                                                                                    <a class="page-link"
+                                                                                        href="/get-broweBook?page=<%= page > 1 ? page - 1 : 1%>"
+                                                                                        aria-label="Previous">
+                                                                                        <span
+                                                                                            aria-hidden="true">&laquo;</span>
+                                                                                        <span
+                                                                                            class="sr-only">Previous</span>
+                                                                                    </a>
+                                                                                </li>
+                                                                                <% for (let i=1; i <=totalPage; i++) {
+                                                                                    %>
+                                                                                    <% if (i===page) { %>
+                                                                                        <li class="page-item active">
+                                                                                            <span class="page-link">
+                                                                                                <%= i %>
+                                                                                            </span>
+                                                                                        </li>
+                                                                                        <% } else if (i===1 ||
+                                                                                            i===totalPage || (i>= page -
+                                                                                            2 && i <= page + 2)) { %>
+                                                                                                <li class="page-item">
+                                                                                                    <a class="page-link"
+                                                                                                        href="/get-broweBook?page=<%= i %>">
+                                                                                                        <%= i %>
+                                                                                                    </a>
+                                                                                                </li>
+                                                                                                <% } else if (i===page -
+                                                                                                    3 || i===page + 3) {
+                                                                                                    %>
+                                                                                                    <li
+                                                                                                        class="page-item disabled">
+                                                                                                        <span
+                                                                                                            class="page-link">...</span>
+                                                                                                    </li>
+                                                                                                    <% } %>
+                                                                                                        <% } %>
+
+                                                                                                            <li
+                                                                                                                class="page-item">
+                                                                                                                <a class="page-link"
+                                                                                                                    href="/get-broweBook?page=<%= page < totalPage ? page + 1 : totalPage%>"
+                                                                                                                    aria-label="Next">
+                                                                                                                    <span
+                                                                                                                        aria-hidden="true">&raquo;</span>
+                                                                                                                    <span
+                                                                                                                        class="sr-only">Next</span>
+                                                                                                                </a>
+                                                                                                            </li>
+                                                                                                            <% } %>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.box -->
+            </section>
+            <!-- /.content -->
+        </div>
+        <%- include('../page/footer')%>
+            <script>
+                $(document).ready(function () {
+                    $(".changeTT").change(function () {
+                        const id = $(this).attr('data-id');
+                        $.ajax({
+                            url: 'http://localhost:8000/post-browsebook',
+                            method: "post",
+                            data: {
+                                id
+                            },
+                            dataType: "JSON",
+                            success: function () {
+                                alert('duyệt thành công')
+                            }
+                        });
+                        location.reload()
+                    })
+                });
+            </script>
+            <!-- /.content-wrapper -->
