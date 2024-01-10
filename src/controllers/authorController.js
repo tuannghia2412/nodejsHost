@@ -113,10 +113,6 @@ const updateAuthor = async (req, res, next) => {
             return res.redirect(`/get-authorFoByID?id=${authorData.id}`)
         }
         let hinhmoi = {}
-        if (!authorData.ten) {
-            req.flash('errCatetory', 'Không được để trống tên thể loại')
-            return res.redirect(`/get-catetoryFoByID?id=${categoryData.id}`)
-        }
         if (req.file || req.file !== undefined) {
             hinhmoi = req.file.filename
         } else {
