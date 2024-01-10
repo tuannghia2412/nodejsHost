@@ -234,7 +234,7 @@
                         const id = $(this).attr('data-id');
                         const trangthaiduyet = $(this).find("select[name='trangthaiduyet']").val();
                         $.ajax({
-                            url: 'http://localhost:8000/post-browsebook',
+                            url: '/post-browsebook',
                             method: "post",
                             data: {
                                 id,
